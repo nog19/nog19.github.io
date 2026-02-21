@@ -102,4 +102,72 @@ public class TodoApp {
             e.getValue().forEach(System.out::println);
         }
     }
+
+
+    static void adicionar() throws IOException {
+        cabecalho("➕ Nova Tarefa");
+        String titulo = ler("  Título       : ");
+        if (titulo.isEmpty()) { System.out.println("  Título não pode ser vazio."); return; }
+        String categoria = ler("  Categoria    : ");
+        String prazo     = ler("  Prazo (ex: 2025-12-31) [Enter para pular]: ");
+        tarefas.add(new Tarefa(proximoId(), titulo, categoria, prazo, false));
+        salvar();
+        System.out.println("  ✅ Tarefa adicionada!");
+    }
+
+    static void concluir() throws IOException {
+        cabecalho("✔ Concluir Tarefa");
+        listar(true);
+        String entrada = ler("\n  ID da tarefa: ");
+        try {
+            int id = Integer.parseInt(entrada);
+            tarefas.stream().filter(t -> t.id == id).findFirst().ifPresentOrElse(t -> {
+                t.concluida = true;
+                try { salvar(); } catch (IOException e) { e.printStackTrace(); }
+                System.out.println("  🎉 Tarefa #" + id + " concluída!");
+            }, () -> System.out.println("  Tarefa não encontrada."));
+        } catch (NumberFormatException e) {
+            System.out.println("  ID inválido.");
+        }
+    }
+
+    static void excluir() throws IOException {
+        cabecalho("🗑 Excluir Tarefa");
+        listar(false);
+        String entrada = ler("\n  ID da tarefa: ");
+        try {
+            int id = Integer.parseInt(entrada);
+            boolean removida = tarefas.removeIf(t -> t.id == id);
+            if (removida) { salvar(); System.out.println("  Tarefa removida."); }
+            else           System.out.println("  Tarefa não encontrada.");
+        } catch (NumberFormatException e) {
+            System.out.println("  ID inválido.");
+        }
+    }
+
+    static void buscar() {
+        cabecalho("🔍 Buscar Tarefa");
+        String termo = ler("  Buscar por: ").toLowerCase();
+        tarefas.stream()
+            .filter(t -> t.titulo.toLowerCase().contains(termo)
+                      || t.categoria.toLowerCase().contains(termo))
+            .forEach(System.out::println);
+    }
+
+    static void resumo() {
+        cabecalho("📊 Resumo");
+        long total     = tarefas.size();
+        long concluidas = tarefas.stream().filter(t -> t.concluida).count();
+        long abertas   = total - concluidas;
+        System.out.printf("  Total    : %d%n", total);
+        System.out.printf("  Abertas  : %d%n", abertas);
+        System.out.printf("  Concluídas: %d%n", concluidas);
+        if (total > 0) {
+            int pct = (int)(concluidas * 100 / total);
+            System.out.print("  Progresso: [");
+            int bars = pct / 5;
+            System.out.print("█".repeat(bars) + "░".repeat(20 - bars));
+            System.out.printf("] %d%%%n", pct);
+        }
+    }
 }
