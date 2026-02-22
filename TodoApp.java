@@ -103,7 +103,7 @@ public class TodoApp {
         }
     }
 
-
+// Funções de manipulação
     static void adicionar() throws IOException {
         cabecalho("➕ Nova Tarefa");
         String titulo = ler("  Título       : ");
@@ -131,7 +131,7 @@ public class TodoApp {
         }
     }
 
-    static void excluir() throws IOException {
+    static void excluir() throws IOException { // Excluir tarefa por ID
         cabecalho("🗑 Excluir Tarefa");
         listar(false);
         String entrada = ler("\n  ID da tarefa: ");
@@ -145,7 +145,7 @@ public class TodoApp {
         }
     }
 
-    static void buscar() {
+    static void buscar() {// Buscar por título ou categoria
         cabecalho("🔍 Buscar Tarefa");
         String termo = ler("  Buscar por: ").toLowerCase();
         tarefas.stream()
@@ -154,7 +154,7 @@ public class TodoApp {
             .forEach(System.out::println);
     }
 
-    static void resumo() {
+    static void resumo() {// Mostrar resumo e progresso
         cabecalho("📊 Resumo");
         long total     = tarefas.size();
         long concluidas = tarefas.stream().filter(t -> t.concluida).count();
@@ -168,6 +168,44 @@ public class TodoApp {
             int bars = pct / 5;
             System.out.print("█".repeat(bars) + "░".repeat(20 - bars));
             System.out.printf("] %d%%%n", pct);
+        }
+    }
+
+    // ── Menu principal 
+    public static void main(String[] args) {
+        carregar();
+        System.out.println("\n  ╔═════════════════════════════╗");
+        System.out.println("  ║   📝 GERENCIADOR DE TAREFAS ║");
+        System.out.println("  ╚═════════════════════════════╝");
+
+        while (true) {
+            System.out.println("\n──────────────────────────────────────");
+            System.out.println("  1. Ver tarefas abertas");
+            System.out.println("  2. Ver todas as tarefas");
+            System.out.println("  3. Adicionar tarefa");
+            System.out.println("  4. Marcar como concluída");
+            System.out.println("  5. Excluir tarefa");
+            System.out.println("  6. Buscar tarefa");
+            System.out.println("  7. Resumo / Progresso");
+            System.out.println("  0. Sair");
+            System.out.println("──────────────────────────────────────");
+            String opcao = ler("  Escolha: ");
+
+            try {
+                switch (opcao) {
+                    case "1" -> { cabecalho("📋 Tarefas Abertas"); listar(true); }
+                    case "2" -> { cabecalho("📋 Todas as Tarefas"); listar(false); }
+                    case "3" -> adicionar();
+                    case "4" -> concluir();
+                    case "5" -> excluir();
+                    case "6" -> buscar();
+                    case "7" -> resumo();
+                    case "0" -> { System.out.println("\n  Até logo! 👋\n"); return; }
+                    default  -> System.out.println("  Opção inválida.");
+                }
+            } catch (IOException e) {
+                System.out.println("  ⚠ Erro ao salvar: " + e.getMessage());
+            }
         }
     }
 }
